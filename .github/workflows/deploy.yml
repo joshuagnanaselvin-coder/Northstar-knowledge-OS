@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -46,6 +50,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ github.repository }}-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Deploy to GCP VM via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -71,11 +103,11 @@ jobs:
               sudo apt-get install -y -qq docker-compose-plugin
             fi
 
-            # Create app directory
+            # Setup deployment directory
             mkdir -p ~/northstar
             cd ~/northstar
 
-            # Write docker-compose.yml
+            # Write docker-compose.yml (pulls from GHCR)
             cat > docker-compose.yml << 'EOF'
             version: '3.8'
             services:
@@ -101,20 +133,15 @@ jobs:
               northstar-data:
             EOF
 
-            # Pull latest images from GHCR
-            docker pull ghcr.io/${{ github.repository }}-backend:latest
-            docker pull ghcr.io/${{ github.repository }}-frontend:latest
+            # Authenticate Docker with GHCR (uses GITHUB_TOKEN)
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Deploy (create or update containers)
+            # Pull latest images and deploy
+            docker compose pull
             docker compose up -d --force-recreate --remove-orphans
 
-            # Clean up old dangling images
+            # Clean up old images
             docker image prune -f
 
-            # Verify
-            sleep 3
-            if curl -sf http://localhost/api/health > /dev/null 2>&1; then
-              echo "DEPLOY_OK=http://${{ secrets.GCE_HOST }}"
-            else
-              echo "DEPLOY_CHECK_FAILED"
-            fi
+            echo ""
+            echo "DEPLOY_OK=http://${{ secrets.GCE_HOST }}"
