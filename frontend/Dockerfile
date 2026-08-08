@@ -6,20 +6,14 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve with nginx (with envsubst for dynamic config)
+# Stage 2: Serve with nginx
 FROM nginx:1.25-alpine
-
-# Install envsubst for environment variable substitution
-RUN apk add --no-cache gettext
 
 # Copy build output
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx config template and entrypoint
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
