@@ -125,10 +125,11 @@ def _asset(a) -> Dict:
 
 def seed_data():
     db = SessionLocal()
-    if db.query(User).first():
-        db.close()
-        return
-    users = [
+    try:
+        count = db.query(User).count()
+        if count > 0:
+            return
+        users = [
         User(id=1, name="Alice Chen", email="alice.chen@example.com", role="Admin", competence="Knowledge Management", department="Enterprise Services", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=alice"),
         User(id=2, name="Marcus Johansson", email="marcus.j@example.com", role="Leader", competence="Electrical Systems", department="Engineering", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=marcus"),
         User(id=3, name="Sarah Patel", email="sarah.p@example.com", role="Leader", competence="Mechanical Design", department="Engineering", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=sarah"),
