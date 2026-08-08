@@ -16,8 +16,8 @@ RUN apk add --no-cache gettext
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx config template and entrypoint
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf.template
-COPY frontend/entrypoint.sh /entrypoint.sh
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
