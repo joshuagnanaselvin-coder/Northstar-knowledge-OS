@@ -9,6 +9,7 @@ import Library from './pages/Library';
 import AssetDetail from './pages/AssetDetail';
 import SpiralSearch from './pages/SpiralSearch';
 import Approvals from './pages/Approvals';
+import SubmitKnowledge from './pages/SubmitKnowledge';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ function App() {
         <Route path="/assets/:id" element={<AssetDetail />} />
         <Route path="/search" element={<SpiralSearch />} />
         <Route path="/approvals" element={<Approvals />} />
+        <Route path="/submit" element={<SubmitKnowledge />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

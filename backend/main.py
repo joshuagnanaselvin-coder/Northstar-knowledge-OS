@@ -2,6 +2,10 @@
 NorthStar Knowledge OS — Backend API
 FastAPI + SQLAlchemy 2.0 + SQLite with eager loading
 """
+import os
+import json
+import enum
+import random
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,13 +14,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, selectinload
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
-import json
-import enum
-import random
 
 Base = declarative_base()
 
-engine = create_engine("sqlite:///./northstar.db", connect_args={"check_same_thread": False})
+# Use environment variable for database URL
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./northstar.db")
+if DATABASE_URL.startswith("sqlite:///"):
+    db_path = DATABASE_URL.replace("sqlite:///", "")
+    db_dir = os.path.dirname(os.path.abspath(db_path))
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
+
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 
 # ── Enums ───────────────────────────────────────────────────────────────────
