@@ -11,12 +11,6 @@ import SpiralSearch from './pages/SpiralSearch';
 import Approvals from './pages/Approvals';
 import SubmitKnowledge from './pages/SubmitKnowledge';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
-}
-
 function App() {
   const { user } = useAuth();
 
@@ -30,10 +24,10 @@ function App() {
   }
 
   return (
-    <Layout>
-      <Routes>
+    <Routes>
+      <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/competences" element={<Competences />} />
         <Route path="/competences/:id" element={<CompetenceDetail />} />
         <Route path="/library" element={<Library />} />
@@ -41,9 +35,9 @@ function App() {
         <Route path="/search" element={<SpiralSearch />} />
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/submit" element={<SubmitKnowledge />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children?: React.ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
