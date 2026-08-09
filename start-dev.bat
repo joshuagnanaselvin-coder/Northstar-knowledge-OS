@@ -14,25 +14,43 @@ if %errorlevel%==0 (
 
 REM Start Backend (FastAPI on port 8000)
 echo [1/3] Starting Backend (http://localhost:8000)...
+echo       A new window will open - watch it for errors.
+echo.
 cd /d "%~dp0backend"
-start "NorthStar Backend" cmd /c "python main.py"
+start "NorthStar Backend - WATCH THIS WINDOW" cmd /c "python main.py 2>&1"
 
 REM Wait for backend to be ready
-timeout /t 3 /nobreak >nul
+echo       Waiting 4 seconds for backend to start...
+timeout /t 4 /nobreak >nul
+
+REM Test backend health
+curl -s http://localhost:8000/api/health >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: Backend did not start! Check the Backend window for errors.
+    echo.
+    pause
+    exit /b 1
+)
+echo       Backend is running!
 
 REM Start Frontend (Vite dev server on port 5173)
+echo.
 echo [2/3] Starting Frontend (http://localhost:5173)...
 cd /d "%~dp0frontend"
-start "NorthStar Frontend" cmd /c "npm run dev"
+start "NorthStar Frontend" cmd /c "npm run dev 2>&1"
 
 REM Wait for frontend to be ready
-timeout /t 3 /nobreak >nul
+echo       Waiting 5 seconds for frontend to compile...
+timeout /t 5 /nobreak >nul
 
 REM Start ngrok tunnel if available
 if %NGROK_AVAILABLE%==1 (
+    echo.
     echo [3/3] Starting Ngrok tunnel for port 5173...
     start "Ngrok Tunnel" cmd /c "ngrok http 5173"
 ) else (
+    echo.
     echo [3/3] Ngrok not found - skipping tunnel.
     echo       Install from https://ngrok.com/download to enable external access.
 )
@@ -55,5 +73,6 @@ if %NGROK_AVAILABLE%==1 (
 )
 echo.
 echo   Close this window to stop all servers.
+echo   IMPORTANT: If login fails, CHECK THE BACKEND WINDOW for error messages!
 echo ==========================================
 pause

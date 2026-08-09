@@ -251,14 +251,19 @@ def health():
 
 @app.post("/api/auth/login", response_model=LoginResponse)
 def login(req: LoginRequest):
-    db = SessionLocal()
-    user = db.query(User).filter(User.name == req.name).first()
-    if not user:
-        user = db.query(User).filter(User.role == req.role).first()
-    db.close()
-    if not user:
-        raise HTTPException(401, "Invalid credentials")
-    return LoginResponse(**_user(user))
+    try:
+        db = SessionLocal()
+        user = db.query(User).filter(User.name == req.name).first()
+        if not user:
+            user = db.query(User).filter(User.role == req.role).first()
+        db.close()
+        if not user:
+            raise HTTPException(401, "Invalid credentials")
+        return LoginResponse(**_user(user))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, f"Login error: {str(e)}")
 
 @app.get("/api/auth/users")
 def list_users():
