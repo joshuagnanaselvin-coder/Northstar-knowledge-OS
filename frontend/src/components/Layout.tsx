@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import {
   LayoutDashboard, BookOpen, Search, CheckCircle,
   FileText, LogOut, Menu, X, ChevronRight,
-  Globe, Shield
+  Globe, Shield, Plus
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,6 +23,7 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
     { to: '/library', icon: FileText, label: 'Knowledge Library', roles: ['Admin', 'Leader', 'Champion', 'Employee', 'Community Member'] },
     { to: '/search', icon: Search, label: 'Spiral Search', roles: ['Admin', 'Leader', 'Champion', 'Employee', 'Community Member'] },
     { to: '/approvals', icon: CheckCircle, label: 'Approvals', roles: ['Admin', 'Leader', 'Champion'] },
+    { to: '/submit', icon: FileText, label: 'Submit Knowledge', roles: ['Admin', 'Leader', 'Champion'] },
   ];
 
   const visibleItems = navItems.filter(item => item.roles.includes(user?.role || 'Employee'));

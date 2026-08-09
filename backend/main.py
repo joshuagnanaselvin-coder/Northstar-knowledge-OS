@@ -6,6 +6,8 @@ import os
 import json
 import enum
 import random
+from starlette.requests import Request
+from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -125,11 +127,12 @@ def _asset(a) -> Dict:
 
 def seed_data():
     db = SessionLocal()
-    try:
-        count = db.query(User).count()
-        if count > 0:
-            return
-        users = [
+    count = db.query(User).count()
+    if count > 0:
+        db.close()
+        return
+
+    users = [
         User(id=1, name="Alice Chen", email="alice.chen@example.com", role="Admin", competence="Knowledge Management", department="Enterprise Services", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=alice"),
         User(id=2, name="Marcus Johansson", email="marcus.j@example.com", role="Leader", competence="Electrical Systems", department="Engineering", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=marcus"),
         User(id=3, name="Sarah Patel", email="sarah.p@example.com", role="Leader", competence="Mechanical Design", department="Engineering", avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=sarah"),
@@ -151,7 +154,8 @@ def seed_data():
     ]
     competences = []
     for cid, name, desc, icon, leader_id, color in competences_data:
-        c = Competence(id=cid, name=name, description=desc, icon=icon, leader_id=leader_id, member_count=random.randint(8, 45), asset_count=0, color=color)
+        c = Competence(id=cid, name=name, description=desc, icon=icon, leader_id=leader_id,
+                       member_count=random.randint(8, 45), asset_count=0, color=color)
         competences.append(c)
     db.add_all(competences)
 
@@ -199,7 +203,7 @@ def seed_data():
         a = KnowledgeAsset(id=aid, title=title, description=desc, asset_type=atype, confidentiality=conf, status=status,
             version=ver, tags=tags, owner_id=oid, reviewer_id=rid, approver_id=aid_apv, competence_id=cid,
             review_date=rd, created_at=created, updated_at=updated,
-            content=f"<p><strong>{title}</strong></p><p>{desc}</p><p>This document contains detailed procedures and guidelines. Please refer to the Table of Contents for specific sections.</p><p><em>Version {ver} | Last reviewed: {rd.strftime('%Y-%m-%d')}</em></p>",
+            content=f"<p><strong>{title}</strong></p><p>{desc}</p><p>This document contains detailed procedures and guidelines.</p><p><em>Version {ver} | Last reviewed: {rd.strftime('%Y-%m-%d')}</em></p>",
             related_docs=json.dumps(rel) if rel else "[]")
         assets.append(a)
     db.add_all(assets)
@@ -215,7 +219,6 @@ def seed_data():
     db.commit()
     db.close()
 
-seed_data()
 
 # ── FastAPI App ─────────────────────────────────────────────────────────────
 app = FastAPI(title="NorthStar Knowledge OS", version="1.0.0")
@@ -398,6 +401,58 @@ def asset_filter_options():
     confs = [r[0] for r in db.query(KnowledgeAsset.confidentiality).distinct().all()]
     db.close()
     return {"asset_types": types, "statuses": statuses, "confidentialities": confs}
+
+@app.post("/api/assets")
+async def create_asset(request: Request):
+    body = await request.json()
+    db = SessionLocal()
+    try:
+        owner_id = body.get("owner_id")
+        if not owner_id:
+            user = db.query(User).filter(User.role.in_(["Admin", "Leader", "Champion"])).first()
+            owner_id = user.id if user else 1
+        competence_id = body.get("competence_id")
+        if not competence_id:
+            comp = db.query(Competence).first()
+            competence_id = comp.id if comp else 1
+        reviewer = db.query(User).filter(User.role == "Leader").first()
+        approver = db.query(User).filter(User.role == "Leader").order_by(User.id.desc()).first()
+        tags_str = ",".join(body.get("tags", [])) if isinstance(body.get("tags"), list) else body.get("tags", "")
+        asset = KnowledgeAsset(
+            title=body.get("title", "Untitled"),
+            description=body.get("summary", body.get("description", "")),
+            asset_type=body.get("asset_type", body.get("knowledgeType", "Document")),
+            confidentiality=body.get("confidentiality", "L1"),
+            status="Submitted",
+            version="1.0",
+            tags=tags_str,
+            owner_id=owner_id,
+            reviewer_id=reviewer.id if reviewer else 1,
+            approver_id=approver.id if approver else 1,
+            competence_id=competence_id,
+            review_date=datetime.utcnow() + timedelta(days=30),
+            content=body.get("content", f"<p>{body.get('summary', body.get('title', ''))}</p>"),
+            related_docs="[]",
+        )
+        db.add(asset)
+        db.commit()
+        db.refresh(asset)
+        asset_id = asset.id
+        first_leader = db.query(User).filter(User.role == "Leader").first()
+        workflow = ApprovalWorkflow(
+            asset_id=asset_id,
+            current_stage="Submitted",
+            submitted_by=owner_id,
+            submitted_at=datetime.utcnow(),
+        )
+        db.add(workflow)
+        db.commit()
+        db.close()
+        return {"id": asset_id, "status": "Submitted", "message": "Knowledge asset submitted successfully"}
+    except Exception as e:
+        db.rollback()
+        db.close()
+        return JSONResponse(status_code=400, content={"message": str(e)})
 
 @app.get("/api/approvals")
 def list_approvals(stage: Optional[str] = None):
