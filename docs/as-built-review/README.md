@@ -40,6 +40,12 @@ NorthStar Knowledge OS is a **functional prototype** of a governed knowledge man
 | Hardcoded KPI values | **MEDIUM** | Partially implemented |
 | Approval actions non-functional | **MEDIUM** | Partially implemented |
 
+## What We Planned (ISO 30401) vs. What We Built
+
+- [14-iso-30401-alignment.md](14-iso-30401-alignment.md) — Clause-by-clause comparison of ISO 30401:2021 requirements against the prototype. Honest assessment of what was claimed vs. what was delivered.
+
+---
+
 ## Read the Full Report
 
 - [00-as-built-technical-report.md](00-as-built-technical-report.md) — Complete 21-section technical report
@@ -56,3 +62,4 @@ NorthStar Knowledge OS is a **functional prototype** of a governed knowledge man
 - [11-qa-document.md](11-qa-document.md) — 25 management Q&A
 - [12-findings-summary.md](12-findings-summary.md) — Prioritized findings table
 - [13-glossary.md](13-glossary.md) — Terms and definitions
+- [14-iso-30401-alignment.md](14-iso-30401-alignment.md) — ISO 30401 clause-by-clause assessment
