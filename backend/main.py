@@ -537,4 +537,14 @@ def spiral_search(request: Dict):
     ]
     return {"query": query, "ai_answer": ai_answer, "sources": sources[:5], "layers": layers}
 
-seed_data()
+
+@app.on_event("startup")
+def startup_event():
+    try:
+        seed_data()
+        print("[OK] Database seeded successfully")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"[ERROR] Failed to seed database: {e}")
+
