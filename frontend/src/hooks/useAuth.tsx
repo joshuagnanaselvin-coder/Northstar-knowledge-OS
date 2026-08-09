@@ -1,5 +1,6 @@
 import { useState, createContext, useContext, ReactNode } from 'react';
 import type { User, KPIs } from '../types';
+import { api } from '../api';
 
 interface AuthContextType {
   user: User | null;
@@ -28,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = async (name: string, role: string) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(api('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, role }),

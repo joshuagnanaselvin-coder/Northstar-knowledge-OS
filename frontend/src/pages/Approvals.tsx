@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../api';
 import { CheckCircle, Clock, AlertTriangle, Eye, ArrowRight } from 'lucide-react';
 import type { ApprovalWorkflow } from '../types';
 import { STATUS_COLORS } from '../types';
@@ -12,7 +13,7 @@ export default function Approvals() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/approvals')
+    fetch(api('/api/approvals'))
       .then(r => r.json())
       .then(data => { setApprovals(data); setLoading(false); })
       .catch(() => setLoading(false));

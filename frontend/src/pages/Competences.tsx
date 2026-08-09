@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api';
 import {
   Zap, Settings, Cpu, Headphones, Wrench, CheckCircle, Briefcase,
   Users, ChevronRight
@@ -22,7 +23,7 @@ export default function Competences() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/competences')
+    fetch(api('/api/competences'))
       .then(r => r.json())
       .then(data => { setCompetences(data); setLoading(false); })
       .catch(() => setLoading(false));

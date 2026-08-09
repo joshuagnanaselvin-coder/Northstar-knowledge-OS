@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { api } from '../api';
 import type { KnowledgeAsset } from '../types';
 import { CONFIDENTIALITY_COLORS, STATUS_COLORS, TYPE_ICONS } from '../types';
 
@@ -17,8 +18,8 @@ export default function Library() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/assets').then(r => r.json()),
-      fetch('/api/assets/filters/options').then(r => r.json()),
+      fetch(api('/api/assets')).then(r => r.json()),
+      fetch(api('/api/assets/filters/options')).then(r => r.json()),
     ]).then(([data, opts]) => {
       setAssets(data);
       setFilterOptions(opts);

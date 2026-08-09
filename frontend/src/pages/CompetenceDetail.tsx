@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../api';
 import {
   ArrowLeft, Users, FileText, Lightbulb, UserCheck,
   GraduationCap, CheckCircle, Lock, Clock, Tag,
@@ -30,7 +31,7 @@ export default function CompetenceDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/competences/${id}`)
+    fetch(api(`/api/competences/${id}`))
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));

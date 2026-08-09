@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../api';
 import {
   BookOpen, Clock, AlertTriangle, TrendingUp,
   ArrowRight, FileText, Search, Library,
@@ -34,9 +35,9 @@ export default function Dashboard() {
   const loadData = useCallback(async () => {
     try {
       const [k, r, p] = await Promise.all([
-        fetch('/api/dashboard/kpis').then(r => r.ok ? r.json() : FALLBACK_KPIS),
-        fetch('/api/dashboard/recent').then(r => r.ok ? r.json() : []),
-        fetch('/api/dashboard/pending-approvals').then(r => r.ok ? r.json() : []),
+        fetch(api('/api/dashboard/kpis')).then(r => r.ok ? r.json() : FALLBACK_KPIS),
+        fetch(api('/api/dashboard/recent')).then(r => r.ok ? r.json() : []),
+        fetch(api('/api/dashboard/pending-approvals')).then(r => r.ok ? r.json() : []),
       ]);
       setKpis(k);
       setRecent(r);

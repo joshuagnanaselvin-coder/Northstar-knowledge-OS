@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { KnowledgeAsset } from '../types';
 import { CONFIDENTIALITY_COLORS, STATUS_COLORS, TYPE_ICONS } from '../types';
+import { api } from '../api';
 
 export default function AssetDetail() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function AssetDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`/api/assets/${id}`)
+    fetch(api(`/api/assets/${id}`))
       .then(r => r.json())
       .then(d => { setAsset(d); setLoading(false); })
       .catch(() => setLoading(false));

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Tag, FileText, Users, Shield, Calendar, ArrowLeft } from 'lucide-react';
+import { api } from '../api';
 
 const KNOWLEDGE_TYPES = [
   'Troubleshooting Case',
@@ -111,7 +112,7 @@ export default function SubmitKnowledge() {
     setSubmitSuccess(false);
 
     try {
-      const response = await fetch('/api/assets', {
+      const response = await fetch(api('/api/assets'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

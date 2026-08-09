@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Sparkles, ChevronDown, ChevronUp, FileText, Lightbulb, Link2, Users, GraduationCap, Zap, Loader2 } from 'lucide-react';
 import type { SearchResponse } from '../types';
+import { api } from '../api';
 
 const LAYER_ICONS: Record<string, React.ReactNode> = {
   Documents: <FileText className="w-4 h-4" />,
@@ -30,7 +31,7 @@ export default function SpiralSearch() {
     setSearched(true);
     setExpandedLayers(new Set());
     try {
-      const res = await fetch('/api/search/spiral', {
+      const res = await fetch(api('/api/search/spiral'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
