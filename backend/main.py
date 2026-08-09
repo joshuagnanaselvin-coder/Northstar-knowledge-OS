@@ -531,3 +531,5 @@ def spiral_search(request: Dict):
         {"layer": "Open Actions", "icon": "⚡", "count": random.randint(1, 5), "items": [{"action": f"Review related {query} documentation", "priority": "Medium", "owner": "Assigned Champion"}]},
     ]
     return {"query": query, "ai_answer": ai_answer, "sources": sources[:5], "layers": layers}
+
+seed_data()
