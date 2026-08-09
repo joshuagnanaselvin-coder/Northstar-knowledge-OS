@@ -5,13 +5,15 @@
       "name": "NorthStar — Frontend",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vite", "--host", "0.0.0.0", "--port", "5174"],
-      "cwd": "C:/Users/josh-/Desktop/NorthStar Knowledge OS prototyp/frontend"
+      "cwd": "C:/Users/josh-/Desktop/NorthStar Knowledge OS prototyp/frontend",
+      "port": 5174
     },
     {
       "name": "NorthStar — Backend",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-c", "from main import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8000, log_level='warning')"],
-      "cwd": "C:/Users/josh-/Desktop/NorthStar Knowledge OS prototyp/backend"
+      "runtimeArgs": ["-c", "from main import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8000, log_level='info')"],
+      "cwd": "C:/Users/josh-/Desktop/NorthStar Knowledge OS prototyp/backend",
+      "port": 8000
     }
   ]
 }
